@@ -14,8 +14,6 @@ router.use(auth);
 
 router.get('/', getAllReviews);
 router.post('/', restrictTo('user'), setTourUsersIds, createReview);
-
-//TODO:  Need to Test this on Postman
 router.delete('/:id', restrictTo('user', 'admin'), deleteReview);
 router.patch('/:id', restrictTo('user', 'admin'), updateReview);
 router.get('/:id', getOneReview);

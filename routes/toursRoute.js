@@ -9,21 +9,15 @@ const {
   deleteTour,
   getTourStats,
   getMonthPlan,
-  getToursWithin
+  getToursWithin,
+  getDistances,
 } = require('../controllers/toursController.js');
 const reviewRouter = require('./reviewsRoute.js');
 const { auth, restrictTo } = require('../middlewares/auth.js');
 
 // router.param('id');
 
-router.use(
-  '/:tourId/reviews',
-  (req, res, next) => {
-    console.log('Nested route hit:', req.params.tourId);
-    next();
-  },
-  reviewRouter
-);
+router.use('/:tourId/reviews', reviewRouter);
 
 router.get('/top-5-tours', aliasTopTours, getAllTours);
 
@@ -36,7 +30,9 @@ router.get(
   getMonthPlan
 );
 
-router.get('/tours-within/:distance/center/:latlng/unit/:unit', getToursWithin)
+router.get('/tours-within/:distance/center/:latlng/unit/:unit', getToursWithin);
+
+router.get('/distances/:latlng/unit/:unit', getDistances);
 
 router.post('/', auth, restrictTo('admin', 'lead-guide', 'guide'), createTour);
 

@@ -86,13 +86,7 @@ reviewSchema.pre(/^findOneAnd/, async function (next) {
 });
 
 reviewSchema.post(/^findOneAnd/, async function () {
-  console.log('Post middleware executed');
-  if (this.r) {
-    console.log('Review after operation:', this.r);
-    await this.r.constructor.calcAverageRatings(this.r.tour);
-  } else {
-    console.log('this.r is undefined in post middleware');
-  }
+  await this.r.constructor.calcAverageRatings(this.r.tour);
 });
 
 const Review = mongoose.model('Review', reviewSchema);

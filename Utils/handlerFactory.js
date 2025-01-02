@@ -1,12 +1,13 @@
 const APIFeatures = require('./api-features');
 const AppError = require('./app.error');
 const catchAsync = require('./catchAsync');
+// const mongoose = require('mongoose');
 
 exports.deleteOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const docId = req.params.id;
     const doc = await Model.findByIdAndDelete(docId);
-    if (!doc) next(new AppError(`No doc found with this ID`, 404));
+    if (!doc) next(new AppError(`No document found with this ID`, 404));
     res.status(200).send({
       status: 'success',
       message: `deleted successfully`,
@@ -42,9 +43,13 @@ exports.createOne = (Model) =>
 exports.getOne = (Model, populateOpt) =>
   catchAsync(async (req, res, next) => {
     const modelId = req.params.id;
+
     let query = Model.findById(modelId);
+
     if (populateOpt) query = query.populate(populateOpt);
+  
     const doc = await query;
+
     if (!doc) {
       return next(new AppError(`No Document found with this ID`, 404));
     }
@@ -55,7 +60,7 @@ exports.getOne = (Model, populateOpt) =>
     });
   });
 
-exports.getAll = (Model, populateOpt) =>
+exports.getAll = Model =>
   catchAsync(async (req, res, next) => {
     let filter = {};
     if (req.params.tourId) filter = { tour: req.params.tourId };
