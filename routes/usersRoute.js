@@ -9,12 +9,14 @@ const {
   updateUser,
   deleteUser,
   getOneUser,
-  getMe
+  getMe,
+  uploadUserPhoto,
 } = require('../controllers/usersController.js');
 const { auth, restrictTo, logout } = require('../middlewares/auth.js');
+
 const router = Router();
 
-router.get('/me', auth , getMe, getOneUser)
+router.get('/me', auth, getMe, getOneUser);
 
 router.post('/signup', signup);
 
@@ -28,7 +30,7 @@ router.patch('/resetPassword/:token', resetPassword);
 
 router.patch('/updatePassword', auth, updatePassword);
 
-router.patch('/updateUser', auth, updateUser);
+router.patch('/updateUser', auth, uploadUserPhoto, updateUser);
 
 router.delete('/deleteUser', auth, deleteUser);
 

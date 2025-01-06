@@ -5,6 +5,33 @@ const catchAsync = require('../Utils/catchAsync');
 const sendEmail = require('../Utils/email.js');
 const crypto = require('crypto');
 const factory = require('../Utils/handlerFactory.js');
+const multer = require('multer');
+
+const multerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/img/users');
+  },
+  filename: (req, file, cb) => {
+    // user-877979787978-899999999.jpeg
+    const ext = file.mimetype.split('/')[1];
+    cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+  },
+});
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(new AppError('Not an Image! Please upload only images', 400), false);
+  }
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+exports.uploadUserPhoto = upload.single('photo');
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -14,7 +41,7 @@ const signToken = (id) => {
 
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
-  
+
   const cookieOptions = {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
@@ -22,7 +49,7 @@ const createSendToken = (user, statusCode, res) => {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
-    path: '/'
+    path: '/',
   };
 
   res.cookie('jwt', token, cookieOptions);
@@ -33,7 +60,7 @@ const createSendToken = (user, statusCode, res) => {
   res.status(statusCode).json({
     status: 'success',
     token,
-    data: { user }
+    data: { user },
   });
 };
 
@@ -162,6 +189,8 @@ exports.updatePassword = async (req, res, next) => {
 };
 
 exports.updateUser = async (req, res, next) => {
+  console.log(req.file);
+  console.log(req.body);
   if (req.body.password || req.body.confirmPassword) {
     next(
       new AppError(
