@@ -11,7 +11,7 @@ const {
   getOneUser,
   getMe
 } = require('../controllers/usersController.js');
-const { auth, restrictTo } = require('../middlewares/auth.js');
+const { auth, restrictTo, logout } = require('../middlewares/auth.js');
 const router = Router();
 
 router.get('/me', auth , getMe, getOneUser)
@@ -19,6 +19,8 @@ router.get('/me', auth , getMe, getOneUser)
 router.post('/signup', signup);
 
 router.post('/login', login);
+
+router.get('/logout', logout);
 
 router.post('/forgotPassword', forgotPassword);
 
