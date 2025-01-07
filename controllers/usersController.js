@@ -1,4 +1,5 @@
 const User = require('../Models/userModel');
+const sharp = require('sharp');
 const jwt = require('jsonwebtoken');
 const AppError = require('../Utils/app.error.js');
 const catchAsync = require('../Utils/catchAsync');
@@ -7,16 +8,17 @@ const crypto = require('crypto');
 const factory = require('../Utils/handlerFactory.js');
 const multer = require('multer');
 
-const multerStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'public/img/users');
-  },
-  filename: (req, file, cb) => {
-    // user-877979787978-899999999.jpeg
-    const ext = file.mimetype.split('/')[1];
-    cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
-  },
-});
+// const multerStorage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'public/img/users');
+//   },
+//   filename: (req, file, cb) => {
+//     // user-877979787978-899999999.jpeg
+//     const ext = file.mimetype.split('/')[1];
+//     cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+//   },
+// });
+const multerStorage = multer.memoryStorage();
 
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image')) {
@@ -32,6 +34,19 @@ const upload = multer({
 });
 
 exports.uploadUserPhoto = upload.single('photo');
+exports.resizeUserPhoto = (req, res, next) => {
+  if (!req.file) return next();
+
+  req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
+
+  sharp(req.file.buffer)
+    .resize(500, 500)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/users/${req.file.filename}`);
+
+  next();
+};
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -205,7 +220,7 @@ exports.updateUser = async (req, res, next) => {
     new: true,
     runValidators: true,
   });
-  
+
   res.status(200).send({
     status: 'success',
     message: 'User updated successfuly',
