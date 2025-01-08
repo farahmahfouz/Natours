@@ -11,7 +11,7 @@ const {
   getOneUser,
   getMe,
   uploadUserPhoto,
-  resizeUserPhoto
+  resizeUserPhoto,
 } = require('../controllers/usersController.js');
 const { auth, restrictTo, logout } = require('../middlewares/auth.js');
 
@@ -31,7 +31,7 @@ router.patch('/resetPassword/:token', resetPassword);
 
 router.patch('/updatePassword', auth, updatePassword);
 
-router.patch('/updateUser', auth, uploadUserPhoto,resizeUserPhoto, updateUser);
+router.patch('/updateUser', auth, uploadUserPhoto, resizeUserPhoto, updateUser);
 
 router.delete('/deleteUser', auth, deleteUser);
 

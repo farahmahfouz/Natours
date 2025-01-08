@@ -24,29 +24,31 @@ const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image')) {
     cb(null, true);
   } else {
-    cb(new AppError('Not an Image! Please upload only images', 400), false);
+    cb(new AppError('Not an image! Please upload only images.', 400), false);
   }
 };
 
 const upload = multer({
   storage: multerStorage,
   fileFilter: multerFilter,
+  limits: { fileSize: 10 * 1024 * 1024 },  
 });
 
 exports.uploadUserPhoto = upload.single('photo');
-exports.resizeUserPhoto = (req, res, next) => {
+
+exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
 
   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
 
-  sharp(req.file.buffer)
+  await sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
     .toFile(`public/img/users/${req.file.filename}`);
 
   next();
-};
+});
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -204,6 +206,9 @@ exports.updatePassword = async (req, res, next) => {
 };
 
 exports.updateUser = async (req, res, next) => {
+  console.log('Request Body:', req.body); // تأكد من وصول البيانات
+  console.log('Request File:', req.file); // تأكد من وصول الملف
+
   if (req.body.password || req.body.confirmPassword) {
     next(
       new AppError(

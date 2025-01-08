@@ -34,10 +34,8 @@ const reviewRoute = require('./routes/reviewsRoute.js');
 const viewRoute = require('./routes/viewRoute.js');
 
 /// Middelwares
-app.use(cors({
-  origin: 'http://localhost:3000', // أو الدومين الذي تعمل عليه الواجهة الأمامية
-  credentials: true, // السماح بالـ cookies
-}));
+app.use(cors());
+
 
 app.use(
   helmet({
