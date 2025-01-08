@@ -3,18 +3,35 @@ const Tour = require('../Models/tourModel');
 const catchAsync = require('../Utils/catchAsync.js');
 const AppError = require('../Utils/app.error.js');
 const factory = require('../Utils/handlerFactory.js');
+const multer = require('multer');
+const sharp = require('sharp');
 
-// exports.checkID = (req, res, next, val) => {
-//   const tourId = req.params.id * 1;
-//   if (tourId > tours.length) {
-//     return res.status(404).send({
-//       status: 'faild',
-//       message: 'Invalid ID',
-//     });
-//   }
-//   next();
-// };
+const multerStorage = multer.memoryStorage();
 
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(new AppError('Not an image! Please upload only images.', 400), false);
+  }
+};
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
+
+exports.uploadTourImages = upload.fields([
+  { name: 'imageCover', maxCount: 1 },
+  { name: 'images', maxCount: 3 },
+]);
+
+exports.resizeToursImages = (req, res, next) => {
+  console.log(req.files);
+  next()
+}
+
+// upload.array('images', 5)
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
   req.query.sort = '-ratingsAverage,price';

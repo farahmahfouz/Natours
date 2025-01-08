@@ -11,6 +11,8 @@ const {
   getMonthPlan,
   getToursWithin,
   getDistances,
+  resizeToursImages,
+  uploadTourImages,
 } = require('../controllers/toursController.js');
 const reviewRouter = require('./reviewsRoute.js');
 const { auth, restrictTo } = require('../middlewares/auth.js');
@@ -40,7 +42,14 @@ router.get('/', getAllTours);
 
 router.get('/:id', getOneTour);
 
-router.patch('/:id', auth, restrictTo('admin', 'lead-guide'), updateTour);
+router.patch(
+  '/:id',
+  auth,
+  restrictTo('admin', 'lead-guide'),
+  uploadTourImages,
+  resizeToursImages,
+  updateTour
+);
 
 router.delete('/:id', auth, restrictTo('admin', 'lead-guide'), deleteTour);
 
