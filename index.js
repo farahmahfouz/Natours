@@ -10,16 +10,14 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const AppError = require('./Utils/app.error.js');
 const globalErrorMiddleware = require('./middlewares/global-errors.js');
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
-
 
 const app = express();
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
-
 
 process.on('uncaughtException', (err) => {
   console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...');
@@ -31,25 +29,35 @@ process.on('uncaughtException', (err) => {
 const toursRoute = require('./routes/toursRoute.js');
 const usersRoute = require('./routes/usersRoute.js');
 const reviewRoute = require('./routes/reviewsRoute.js');
+const bookingRoute = require('./routes/bookingRoute.js');
 const viewRoute = require('./routes/viewRoute.js');
 
 /// Middelwares
 app.use(cors());
-
 
 app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "https://unpkg.com", "'unsafe-inline'", "'unsafe-eval'"],
-        styleSrc: ["'self'", "https://fonts.googleapis.com", "https://unpkg.com", "'unsafe-inline'"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        imgSrc: ["'self'", "data:", "http:", "https:"],
-        connectSrc: ["'self'", "ws:", "wss:", "http:", "https:"],
-        workerSrc: ["'self'", "blob:"]
-      }
-    }
+        scriptSrc: [
+          "'self'",
+          'https://unpkg.com',
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+        ],
+        styleSrc: [
+          "'self'",
+          'https://fonts.googleapis.com',
+          'https://unpkg.com',
+          "'unsafe-inline'",
+        ],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', 'http:', 'https:'],
+        connectSrc: ["'self'", 'ws:', 'wss:', 'http:', 'https:'],
+        workerSrc: ["'self'", 'blob:'],
+      },
+    },
   })
 );
 
@@ -63,7 +71,7 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-app.use(express.json({limit: '10kb'}));
+app.use(express.json({ limit: '10kb' }));
 app.use(cookieParser());
 
 app.use(mongoSanitize());
@@ -85,7 +93,6 @@ app.get('/bundle.js.map', (req, res) => {
   res.status(404).send('Not found');
 });
 
-
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   // console.log(req.cookies)
@@ -97,6 +104,7 @@ app.use('/', viewRoute);
 app.use('/api/v1/tours', toursRoute);
 app.use('/api/v1/users', usersRoute);
 app.use('/api/v1/reviews', reviewRoute);
+app.use('/api/v1/booking', bookingRoute);
 
 // Not Found routes
 app.all('*', (req, res, next) => {
