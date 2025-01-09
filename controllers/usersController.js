@@ -31,7 +31,7 @@ const multerFilter = (req, file, cb) => {
 const upload = multer({
   storage: multerStorage,
   fileFilter: multerFilter,
-  limits: { fileSize: 10 * 1024 * 1024 },  
+  limits: { fileSize: 10 * 1024 * 1024 },
 });
 
 exports.uploadUserPhoto = upload.single('photo');
@@ -111,8 +111,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     role: req.body.role,
   });
   const url = `${req.protocol}://${req.get('host')}/me`;
-  console.log(url)
-  await new Email(newUser, url).sendWelcome()
+
+  await new Email(newUser, url).sendWelcome();
 
   createSendToken(newUser, 201, res);
 });
@@ -145,17 +145,11 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const resetToken = user.createPasswordResetToken();
   // We set validateBeforeSave to false because we don't want to validate the user's password
   await user.save({ validateBeforeSave: false });
-
-  const resetUrl = `${req.protocol}://${req.get(
-    'host'
-  )}/api/v1/users/resetPassword/${resetToken}`;
-  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetUrl}.\nIf you didn't forget your password, please ignore this email!`;
   try {
-    // await Email({
-    //   email: user.email,
-    //   subject: 'Your password reset token (valid for only 10 minutes)',
-    //   message,
-    // });
+    const resetUrl = `${req.protocol}://${req.get(
+      'host'
+    )}/api/v1/users/resetPassword/${resetToken}`;
+    await new Email(user, resetUrl).sendPasswordReset();
     res.status(200).send({
       status: 'success',
       message: 'Token sent to email',
