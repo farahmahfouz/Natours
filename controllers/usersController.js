@@ -1,12 +1,12 @@
 const User = require('../Models/userModel');
-const sharp = require('sharp');
 const jwt = require('jsonwebtoken');
 const AppError = require('../Utils/app.error.js');
 const catchAsync = require('../Utils/catchAsync');
-const sendEmail = require('../Utils/email.js');
+const Email = require('../Utils/email.js');
 const crypto = require('crypto');
 const factory = require('../Utils/handlerFactory.js');
 const multer = require('multer');
+const sharp = require('sharp');
 
 // const multerStorage = multer.diskStorage({
 //   destination: (req, file, cb) => {
@@ -110,6 +110,9 @@ exports.signup = catchAsync(async (req, res, next) => {
     confirmPassword: req.body.confirmPassword,
     role: req.body.role,
   });
+  const url = `${req.protocol}://${req.get('host')}/me`;
+  console.log(url)
+  await new Email(newUser, url).sendWelcome()
 
   createSendToken(newUser, 201, res);
 });
@@ -148,11 +151,11 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   )}/api/v1/users/resetPassword/${resetToken}`;
   const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetUrl}.\nIf you didn't forget your password, please ignore this email!`;
   try {
-    await sendEmail({
-      email: user.email,
-      subject: 'Your password reset token (valid for only 10 minutes)',
-      message,
-    });
+    // await Email({
+    //   email: user.email,
+    //   subject: 'Your password reset token (valid for only 10 minutes)',
+    //   message,
+    // });
     res.status(200).send({
       status: 'success',
       message: 'Token sent to email',
