@@ -1,7 +1,3 @@
-Here is a documented version of your Natours project:
-
----
-
 # **Natours - Tours Booking Website**
 
 **Natours** is a tours booking website built with the following technologies:
